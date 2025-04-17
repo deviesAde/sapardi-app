@@ -33,13 +33,11 @@ export function Header() {
     return (
         <div className="relative w-full bg-[#123524]">
             <Navbar>
-                {/* Desktop Navigation */}
                 <NavBody>
                     <NavbarLogo />
                     <NavItems items={navItems} className="text-[#F4D793]" />
                     <div className="flex items-center gap-4">
-
-                        <NavbarButton variant="primary" className="bg-[#F4D793] text-[#123524]">
+                        <NavbarButton href={route('login')} variant="primary" className="bg-[#F4D793] text-[#123524]">
                             Masuk
                         </NavbarButton>
                     </div>
@@ -63,8 +61,12 @@ export function Header() {
                             </a>
                         ))}
                         <div className="flex w-full flex-col gap-4">
-
-                            <NavbarButton onClick={() => setIsMobileMenuOpen(false)} variant="primary" className="w-full bg-[#F4D793] text-[#123524]">
+                            <NavbarButton
+                                href={route('login')}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                variant="primary"
+                                className="w-full bg-[#F4D793] text-[#123524]"
+                            >
                                 Masuk
                             </NavbarButton>
                         </div>

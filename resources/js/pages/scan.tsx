@@ -74,11 +74,11 @@ export default function ScanPenyakit() {
             <header className="sticky top-0 z-10 mb-6 w-full bg-green-900 px-6 py-4 text-white shadow">
                 <div className="mx-auto flex max-w-4xl items-center justify-between">
                     <div className="flex items-center space-x-3">
-                        <img src="/logo.png" alt="Logo" className="h-10" />
+                        <img src="/images/landing/Logo.png" alt="Logo" className="h-10" />
                         <span className="text-xl font-bold">SAPARDI</span>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <span className="font-semibold text-white">Petani1</span>
+                        <span className="font-semibold text-white">User</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-green-800">
                             <i className="fas fa-user"></i>
                         </div>
@@ -91,10 +91,10 @@ export default function ScanPenyakit() {
                     <h1 className="text-2xl font-bold text-green-600">Scan Penyakit</h1>
                 </div>
 
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-center lg:space-x-8">
                     {isCameraOpen && (
-                        <div className="flex flex-col items-center">
-                            <video ref={videoRef} className="h-[500px] w-full rounded-lg object-cover shadow-lg"></video>
+                        <div className="flex flex-col items-center lg:w-2/3">
+                            <video ref={videoRef} className="h-[300px] w-full rounded-lg object-cover shadow-lg lg:h-[500px]"></video>
 
                             <div className="mt-4 flex space-x-4">
                                 <Button onClick={captureImage} className="rounded bg-[#67AE6E] px-4 py-2 font-semibold text-white hover:bg-green-500">
@@ -114,7 +114,7 @@ export default function ScanPenyakit() {
                             </div>
 
                             {/* Tips and Tricks */}
-                            <div className="mt-6 w-full max-w-3xl rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm">
+                            <div className="mt-10 w-full max-w-3xl rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm lg:mt-0 lg:w-1/3">
                                 <h3 className="mb-2 text-lg font-semibold text-green-700">Tips & Trik untuk Hasil Scan yang Optimal</h3>
                                 <ul className="list-disc space-y-1 pl-5 text-gray-700">
                                     <li>Pastikan gambar tanaman terlihat jelas dan fokus.</li>
@@ -132,7 +132,10 @@ export default function ScanPenyakit() {
                             <h2 className="text-lg font-bold text-green-600">Captured Image</h2>
                             <img src={capturedImage} alt="Captured" className="mx-auto mt-4 h-96 w-auto rounded-lg" />
                             <div className="mt-4 flex space-x-4">
-                                <Button onClick={resetToInitialState} className="rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500">
+                                <Button
+                                    onClick={resetToInitialState}
+                                    className="rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500"
+                                >
                                     <RotateCcw className="mr-2 h-4 w-4" />
                                     Ulangi
                                 </Button>

@@ -114,7 +114,7 @@ const Chatbot: React.FC = () => {
                         currentChat.messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div
-                                    className={`max-w-xs rounded-xl p-3 ${
+                                    className={`max-w-xs rounded-xl p-3 whitespace-pre-wrap ${
                                         msg.role === 'user' ? 'bg-green-400 text-white' : 'bg-gray-300 text-black'
                                     }`}
                                 >

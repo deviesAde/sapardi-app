@@ -95,6 +95,20 @@ class DiagnosaController extends Controller
         ]);
     }
 
+    public function hasilDiagnosa()
+    {
+        $label = session('label');
+        $image = session('image');
+
+        $penyakit = PenyakitPadi::where('nama_penyakit', 'like', '%' . $label . '%')->first();
+
+        return Inertia::render('HasilDiagnosa', [
+            'label' => $label,
+            'image' => $image,
+            'penyakit' => $penyakit
+        ]);
+    }
+
     /**
      * Display the specified resource.
      */

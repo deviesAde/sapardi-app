@@ -15,4 +15,9 @@ class Diagnosis extends Model
         'confidence',
         'metode',
     ];
+
+    public function penyakit()
+    {
+        return $this->belongsTo(PenyakitPadi::class, 'penyakit_id');
+    }
 }

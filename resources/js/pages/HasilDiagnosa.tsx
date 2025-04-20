@@ -1,24 +1,17 @@
 import { Button } from '@/components/ui/button';
-import { PageProps } from '@inertiajs/inertia';
 import { usePage } from '@inertiajs/react';
 
-interface FlashProps {
-    image: string;
-    label: string;
-}
-
-interface Props extends PageProps {
-    flash: FlashProps;
-}
-
 export default function HasilDiagnosa() {
-    const { flash } = usePage<Props>().props;
-
-    const image = flash.image; // <- path hasil prediksi
-    const label = flash.label; // <- label hasil YOLO
-
-    console.log('Image:', image);
-    console.log('Label:', label);
+    const { label, image, penyakit } = usePage().props as {
+        label?: string;
+        image?: string;
+        penyakit?: {
+            nama_penyakit: string;
+            deskripsi: string;
+            penyebab: string;
+            saran_penanganan: string;
+        };
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -60,24 +53,28 @@ export default function HasilDiagnosa() {
                         <div>
                             <h2 className="text-lg font-semibold text-gray-800">Nama Penyakit :</h2>
                             <p className="mt-2 rounded-md bg-green-100 p-4 text-justify text-sm text-gray-800">
-                                Penyakit <strong>daun kering</strong> pada padi, yang juga dikenal sebagai blast atau hawar daun bakteri, adalah
-                                penyakit yang disebabkan oleh jamur <em>Pyricularia oryzae</em> atau bakteri <em>Xanthomonas oryzae</em>. Penyakit ini
-                                ditandai dengan munculnya bercak berwarna coklat keabu-abuan pada daun yang kemudian mengering, menyebar cepat, dan
-                                menyebabkan daun mati. Kondisi ini biasanya muncul saat cuaca lembap dan basah, terutama pada fase vegetatif hingga
-                                generatif padi. Serangan parah dapat menurunkan hasil panen secara signifikan karena menghambat proses fotosintesis
-                                tanaman.
+                                {penyakit?.nama_penyakit ?? 'Nama penyakit tidak ditemukan.'}
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 className="text-lg font-semibold text-gray-800">Deskripsi Penyakit :</h2>
+                            <p className="mt-2 rounded-md bg-green-100 p-4 text-justify text-sm text-gray-800">
+                                {penyakit?.deskripsi ?? 'Deskripsi tidak tersedia.'}
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 className="text-lg font-semibold text-gray-800">Penyebab :</h2>
+                            <p className="mt-2 rounded-md bg-green-100 p-4 text-justify text-sm text-gray-800">
+                                {penyakit?.penyebab ?? 'Penyebab belum tersedia.'}
                             </p>
                         </div>
 
                         <div>
                             <h2 className="text-lg font-semibold text-gray-800">Saran Penanganan :</h2>
                             <p className="mt-2 rounded-md bg-green-100 p-4 text-justify text-sm text-gray-800">
-                                Penanganan penyakit daun kering dapat dilakukan melalui pendekatan terpadu, seperti menanam varietas padi yang tahan
-                                penyakit, menjaga jarak tanam agar sirkulasi udara baik, dan menghindari pemupukan nitrogen secara berlebihan. Jika
-                                serangan sudah terjadi, petani bisa menggunakan fungisida berbahan aktif seperti triazol atau strobilurin untuk
-                                penyakit jamur, serta bakterisida jika penyebabnya adalah bakteri. Pengelolaan air yang baik dan rotasi tanaman juga
-                                membantu mengurangi risiko penyebaran penyakit. Selain itu, monitoring secara rutin sangat penting untuk mendeteksi
-                                gejala sejak dini.
+                                {penyakit?.saran_penanganan ?? 'Saran tidak tersedia.'}
                             </p>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\DiagnosaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -11,9 +12,7 @@ Route::get('/scan', function () {
     return Inertia::render('scan');
 })->name('scan');
 
-Route::get('/hasil-scan-penyakit', function () {
-    return Inertia::render('HasilDiagnosa');
-})->name('HasilDiagnosa');
+Route::get('/hasil-scan-penyakit', [DiagnosaController::class, 'hasilDiagnosa'])->name('hasil.diagnosa');
 
 Route::post('/hasil-scan-penyakit', [DiagnosaController::class, 'store'])->name('hasil.diagnosa');
 

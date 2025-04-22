@@ -1,13 +1,81 @@
-import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { router } from '@inertiajs/react';
 import { Camera, FolderInput, RotateCcw } from 'lucide-react';
-
+import { useEffect, useRef, useState } from 'react';
 
 export default function ScanPenyakit() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
+
+    // const handleUseImage = async () => {
+    //     if (!capturedImage) return;
+
+    //     const formData = new FormData();
+    //     const blob = await (await fetch(capturedImage)).blob(); // konversi dataURL ke blob
+    //     formData.append('image', blob, 'scan.png');
+
+    //     try {
+    //         const response = await fetch('http://localhost:5000/predict', {
+    //             method: 'POST',
+    //             body: formData,
+    //         });
+
+    //         const data = await response.json();
+
+    //         if (data.success && data.results) {
+    //             const results = JSON.parse(data.results);
+    //             const label = results[0]?.name || 'Tidak dikenali';
+
+    //             // Kirim gambar dan label ke Laravel
+    //             const diagnosaForm = new FormData();
+    //             diagnosaForm.append('image', blob, 'scan.png');
+    //             diagnosaForm.append('label', label);
+
+    //             // Kirim data ke Laravel controller
+    //             router.post('/hasil-scan-penyakit', {
+    //                 image: capturedImage, // Pastikan ini URL yang benar atau gambar yang sudah di-upload
+    //                 label: label,
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.error('Gagal mengirim gambar ke server:', error);
+    //     }
+    // };
+
+    const handleUseImage = async () => {
+        if (!capturedImage) return;
+
+        const formData = new FormData();
+        const blob = await (await fetch(capturedImage)).blob();
+        formData.append('image', blob, 'scan.png');
+
+        try {
+            const response = await fetch('http://localhost:5000/predict', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const results = JSON.parse(data.results);
+                const label = results[0]?.name || 'Tidak dikenali';
+
+                // Ini adalah path dari Flask yang sudah disimpan ke Laravel folder
+                const imagePath = data.image;
+
+                // Kirim ke Laravel
+                router.post('/hasil-scan-penyakit', {
+                    image: imagePath,
+                    label: label,
+                });
+            }
+        } catch (error) {
+            console.error('Gagal mengirim gambar ke Flask:', error);
+        }
+    };
 
     const openCamera = async () => {
         setIsCameraOpen(true);
@@ -62,7 +130,6 @@ export default function ScanPenyakit() {
         setCapturedImage(null);
         openCamera();
     };
-
 
     useEffect(() => {
         openCamera();
@@ -139,7 +206,7 @@ export default function ScanPenyakit() {
                                     <RotateCcw className="mr-2 h-4 w-4" />
                                     Ulangi
                                 </Button>
-                                <button className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500">
+                                <button className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500" onClick={handleUseImage}>
                                     Gunakan gambar ini
                                 </button>
                             </div>

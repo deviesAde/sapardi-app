@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { usePage } from '@inertiajs/react';
+import Header from '@/components/Auth/HeaderAuth';
+
 
 export default function HasilDiagnosa() {
     const { label, image, penyakit } = usePage().props as {
@@ -12,11 +14,16 @@ export default function HasilDiagnosa() {
             saran_penanganan: string;
         };
     };
+    console.log('Hasil Diagnosa:', { label, image, penyakit });
+    console.log('Image:', image);
+    console.log('Label:', label);
+    console.log('Penyakit:', penyakit);
 
     return (
         <div className="min-h-screen bg-gray-100">
-            {/* Header */}
-            <header className="sticky top-0 z-10 mb-6 w-full bg-green-900 px-6 py-4 text-white shadow">
+
+            <Header />
+
                 <div className="mx-auto flex max-w-4xl items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <img src="/logo.png" alt="Logo" className="h-10" />
@@ -29,7 +36,7 @@ export default function HasilDiagnosa() {
                         </div>
                     </div>
                 </div>
-            </header>
+
 
             {/* Main */}
             <main className="mx-auto max-w-6xl p-6">

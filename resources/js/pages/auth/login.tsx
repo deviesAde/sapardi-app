@@ -14,6 +14,7 @@ type LoginForm = {
     email: string;
     password: string;
     remember: boolean;
+    redirect: string;
 };
 
 interface LoginProps {
@@ -22,10 +23,13 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword }: LoginProps) {
+    const redirectParam = new URLSearchParams(window.location.search).get('redirect') || '';
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
         remember: false,
+        redirect: redirectParam,
+
     });
 
     const submit: FormEventHandler = (e) => {
@@ -53,6 +57,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             placeholder="email@example.com"
+                            className="text-white"
                         />
                         <InputError message={errors.email} />
                     </div>
@@ -75,6 +80,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
                             placeholder="Password"
+                            className="text-white"
                         />
                         <InputError message={errors.password} />
                     </div>

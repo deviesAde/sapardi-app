@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePage } from '@inertiajs/react';
 
 type FeatureItemProps = {
     text: string;
@@ -16,8 +17,19 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ text }) => (
 );
 
 const WhyChooseUs: React.FC = () => {
+     const { auth } = usePage<{ auth: { user?: { id: number; name: string } } }>().props; // Mengambil data autentikasi dari backend
+
+     const handleButtonClick = () => {
+         if (auth.user) {
+             // Jika pengguna sudah login, arahkan ke fitur utama
+             window.location.href = '/scan';
+         } else {
+             // Jika pengguna belum login, arahkan ke halaman login
+             window.location.href = '/login?redirect=/scan';
+         }
+     };
     return (
-         <section className="bg-[#123524] px-6 py-16 text-white">
+        <section id="features" className="bg-[#123524] px-6 py-16 text-white">
             <div className="mx-auto max-w-6xl text-center">
                 <h2 className="mb-4 text-3xl font-bold md:text-4xl">Kenapa Memilih Kami?</h2>
                 <p className="mx-auto mb-8 max-w-3xl text-base md:text-lg">
@@ -45,7 +57,10 @@ const WhyChooseUs: React.FC = () => {
                         <FeatureItem text="Dapat Memberikan saran yang tepat dan sesuai dengan penyakit padi anda" />
                         <FeatureItem text="Data Aktual dari sumber yang terpercaya" />
 
-                        <button className="mt-6 rounded-md bg-[#67AE6E] px-6 py-3 font-semibold text-white transition hover:bg-green-600">
+                        <button
+                            onClick={handleButtonClick}
+                            className="mt-6 inline-block rounded-md bg-[#67AE6E] px-6 py-3 font-semibold text-white transition hover:bg-green-600"
+                        >
                             Mulai Scan!
                         </button>
                     </div>

@@ -15,16 +15,16 @@ import { useState } from 'react';
 export function Header() {
     const navItems = [
         {
-            name: 'Features',
+            name: 'Home',
+            link: '#Hero',
+        },
+        {
+            name: 'Tentang Kami',
+            link: '#feature',
+        },
+        {
+            name: 'Fitur Kami',
             link: '#features',
-        },
-        {
-            name: 'Pricing',
-            link: '#pricing',
-        },
-        {
-            name: 'Contact',
-            link: '#contact',
         },
     ];
 

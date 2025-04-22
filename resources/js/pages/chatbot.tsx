@@ -1,5 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { MoveLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Tipe data untuk pesan chat
 type ChatMessage = {
@@ -29,13 +31,18 @@ const Chatbot: React.FC = () => {
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Fungsi untuk menghapus format Markdown dari respons bot
+    const cleanBotResponse = (response: string): string => {
+        return response.replace(/\*\*/g, ''); // Menghapus tanda **
+    };
+
     // Fungsi untuk mengirim pesan
     const handleSend = async () => {
         if (!prompt.trim()) return;
 
         const userMessage: ChatMessage = { role: 'user', text: prompt };
 
-        // Tambahkan pesan user ke sesi chat saat ini
+
         setCurrentChat((prev) => ({
             ...prev,
             prompt: prev.prompt || prompt,
@@ -44,13 +51,13 @@ const Chatbot: React.FC = () => {
 
         setLoading(true);
         try {
-            // Kirim prompt ke server
+
             const res = await axios.post('/chatbot', { prompt });
             const botResponse = res.data.choices?.[0]?.message?.content || 'Bot tidak bisa menjawab.';
 
-            const botMessage: ChatMessage = { role: 'bot', text: botResponse };
+            const botMessage: ChatMessage = { role: 'bot', text: cleanBotResponse(botResponse) };
 
-            // Perbarui sesi chat dengan respons bot
+
             const updatedChat: Chat = {
                 ...currentChat,
                 prompt: currentChat.prompt || prompt,
@@ -59,11 +66,11 @@ const Chatbot: React.FC = () => {
 
             setCurrentChat(updatedChat);
 
-            // Perbarui riwayat chat (1 sesi per ID)
+
             const updatedHistory = chatHistory.filter((chat) => chat.id !== updatedChat.id);
             updatedHistory.unshift(updatedChat);
 
-            // Batasi riwayat hingga 8 entri
+
             if (updatedHistory.length > 8) {
                 updatedHistory.pop();
             }
@@ -77,12 +84,11 @@ const Chatbot: React.FC = () => {
         }
     };
 
-    // Fungsi untuk memilih sesi chat dari riwayat
+
     const handleSelectHistory = (chat: Chat) => {
         setCurrentChat(chat);
     };
 
-    // Fungsi untuk memulai sesi chat baru
     const handleNewChat = () => {
         setCurrentChat({
             id: Date.now(),
@@ -91,24 +97,35 @@ const Chatbot: React.FC = () => {
         });
     };
 
-    // Fungsi untuk menghapus seluruh riwayat chat
+
     const handleClearHistory = () => {
         setChatHistory([]);
     };
 
     return (
         <div className="flex h-screen bg-[#67AE6E]">
-            {/* Area Chat */}
             <div className="m-6 flex flex-1 flex-col rounded-2xl bg-white p-6">
-                {/* Header */}
-                <div className="mb-4 flex justify-center">
-                    <img src="/pakpardi.png" alt="Pak Pardi" className="h-16" />
+
+                <div className="mb-4 flex items-center justify-between">
+
+
+                    <Button
+                       
+                        className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                        onClick={() => (window.location.href = '/')}
+                    >
+                        <MoveLeft className="mr-2 h-4 w-4" />
+                        Kembali ke Home
+                    </Button>
+                    <div className="mb-4 flex justify-center">
+                        <img src="/images/landing/botai.png" alt="Pak Pardi" className="h-30" />
+                    </div>
                 </div>
+
                 <div className="mb-4 flex justify-center">
                     <h1 className="text-2xl font-bold text-green-900">Tanya Pak Pardi</h1>
                 </div>
 
-                {/* Pesan Chat */}
                 <div className="mb-4 flex-1 space-y-4 overflow-y-auto rounded-xl bg-gray-100 p-4">
                     {currentChat.messages.length > 0 ? (
                         currentChat.messages.map((msg, idx) => (

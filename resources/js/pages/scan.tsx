@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { Camera, FolderInput, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import Header from '@/components/Auth/HeaderAuth';
 
 export default function ScanPenyakit() {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -9,40 +10,6 @@ export default function ScanPenyakit() {
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
-    // const handleUseImage = async () => {
-    //     if (!capturedImage) return;
-
-    //     const formData = new FormData();
-    //     const blob = await (await fetch(capturedImage)).blob(); // konversi dataURL ke blob
-    //     formData.append('image', blob, 'scan.png');
-
-    //     try {
-    //         const response = await fetch('http://localhost:5000/predict', {
-    //             method: 'POST',
-    //             body: formData,
-    //         });
-
-    //         const data = await response.json();
-
-    //         if (data.success && data.results) {
-    //             const results = JSON.parse(data.results);
-    //             const label = results[0]?.name || 'Tidak dikenali';
-
-    //             // Kirim gambar dan label ke Laravel
-    //             const diagnosaForm = new FormData();
-    //             diagnosaForm.append('image', blob, 'scan.png');
-    //             diagnosaForm.append('label', label);
-
-    //             // Kirim data ke Laravel controller
-    //             router.post('/hasil-scan-penyakit', {
-    //                 image: capturedImage, // Pastikan ini URL yang benar atau gambar yang sudah di-upload
-    //                 label: label,
-    //             });
-    //         }
-    //     } catch (error) {
-    //         console.error('Gagal mengirim gambar ke server:', error);
-    //     }
-    // };
 
     const handleUseImage = async () => {
         if (!capturedImage) return;
@@ -63,7 +30,6 @@ export default function ScanPenyakit() {
                 const results = JSON.parse(data.results);
                 const label = results[0]?.name || 'Tidak dikenali';
 
-                // Ini adalah path dari Flask yang sudah disimpan ke Laravel folder
                 const imagePath = data.image;
 
                 // Kirim ke Laravel
@@ -138,20 +104,8 @@ export default function ScanPenyakit() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <header className="sticky top-0 z-10 mb-6 w-full bg-green-900 px-6 py-4 text-white shadow">
-                <div className="mx-auto flex max-w-4xl items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <img src="/images/landing/Logo.png" alt="Logo" className="h-10" />
-                        <span className="text-xl font-bold">SAPARDI</span>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <span className="font-semibold text-white">User</span>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-green-800">
-                            <i className="fas fa-user"></i>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Header />
+
 
             <main className="mx-auto w-full max-w-full rounded bg-white p-6 shadow">
                 <div className="mb-6 text-center">
@@ -181,7 +135,7 @@ export default function ScanPenyakit() {
                             </div>
 
                             {/* Tips and Tricks */}
-                            <div className="mt-10 w-full max-w-3xl rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm lg:mt-0 lg:w-1/3">
+                            <div className="mt-10 w-full max-w-4xl rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm lg:mt-0 lg:w-1/3">
                                 <h3 className="mb-2 text-lg font-semibold text-green-700">Tips & Trik untuk Hasil Scan yang Optimal</h3>
                                 <ul className="list-disc space-y-1 pl-5 text-gray-700">
                                     <li>Pastikan gambar tanaman terlihat jelas dan fokus.</li>

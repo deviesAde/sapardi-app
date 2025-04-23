@@ -65,8 +65,12 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':user'])->group(
     });
 
     Route::get('/edit', function () {
-        return Inertia::render('editProfile');
-    })->name('editProfile');
+        return Inertia::render('editProfile', [
+        'auth' => [
+            'user' => Auth::user(),
+        ],
+    ]);
+    });
 
 });
 

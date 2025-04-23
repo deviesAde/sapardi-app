@@ -1,7 +1,6 @@
+import Header from '@/components/Auth/HeaderAuth';
 import { Button } from '@/components/ui/button';
 import { usePage } from '@inertiajs/react';
-import Header from '@/components/Auth/HeaderAuth';
-
 
 export default function HasilDiagnosa() {
     const { label, image, penyakit } = usePage().props as {
@@ -19,24 +18,14 @@ export default function HasilDiagnosa() {
     console.log('Label:', label);
     console.log('Penyakit:', penyakit);
 
+    const handleClickButtonSelesai = () => {
+        window.location.href = '/scan';
+    };
+
     return (
         <div className="min-h-screen bg-gray-100">
-
+            {/* Header */}
             <Header />
-
-                <div className="mx-auto flex max-w-4xl items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <img src="/logo.png" alt="Logo" className="h-10" />
-                        <span className="text-xl font-bold">SAPARDI</span>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <span className="font-semibold text-white">Petani1</span>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-green-800">
-                            <i className="fas fa-user"></i>
-                        </div>
-                    </div>
-                </div>
-
 
             {/* Main */}
             <main className="mx-auto max-w-6xl p-6">
@@ -52,7 +41,9 @@ export default function HasilDiagnosa() {
                                 {label}
                             </div>
                         </div>
-                        <Button className="mt-6 bg-green-700 text-white hover:bg-green-600">Selesai</Button>
+                        <Button className="mt-6 bg-green-700 text-white hover:bg-green-600" onClick={handleClickButtonSelesai}>
+                            Selesai
+                        </Button>
                     </div>
 
                     {/* Deskripsi Penyakit */}

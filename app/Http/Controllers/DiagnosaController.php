@@ -8,7 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use GuzzleHttp\Client;
 use App\Models\PenyakitPadi;
-
+use Illuminate\Support\Facades\Auth;
 
 
 class DiagnosaController extends Controller
@@ -76,15 +76,15 @@ class DiagnosaController extends Controller
         ]);
 
         // Cari penyakit berdasarkan label
-        // $penyakit = PenyakitPadi::where('nama_penyakit', 'like', '%' . $request->label . '%')->first();
+        $penyakit = PenyakitPadi::where('nama_penyakit', 'like', '%' . $request->label . '%')->first();
 
         // Simpan ke database
         Diagnosis::create([
-            'user_id' => 1, // pastikan user sudah login
-            'penyakit_id' => 1,
+            'user_id' => Auth::id(), // pastikan user sudah login
+            'penyakit_id' => $penyakit ? $penyakit->id : null,
             'gambar_input' => $request->image,
-            'hasil_diagnosis' => $request->label,
-            'confidence' => 0.0, // jika tidak disertakan, bisa null atau isi manual
+            'hasil_diagnosis' => $penyakit ? $penyakit->nama_penyakit : 'Tidak dikenali',
+            'confidence' => 0.0, // atau isi jika punya nilai confidence
             'metode' => 'kamera',
         ]);
 
@@ -106,6 +106,29 @@ class DiagnosaController extends Controller
             'label' => $label,
             'image' => $image,
             'penyakit' => $penyakit
+        ]);
+    }
+
+    public function riwayatScan()
+    {
+        $userId = Auth::id();
+
+        $diagnosas = Diagnosis::with('penyakit')
+            ->where('user_id', $userId)
+            ->latest()
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'hasil_diagnosis' => $item->hasil_diagnosis,
+                    'gambar_input' => asset($item->gambar_input),
+                    'created_at' => $item->created_at,
+                    'saran_penanganan' => optional($item->penyakit)->saran_penanganan ?? 'Tidak tersedia',
+                ];
+            });
+
+        return Inertia::render('RiwayatScan', [
+            'diagnosas' => $diagnosas,
         ]);
     }
 

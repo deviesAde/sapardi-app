@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chatbot_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->text('pertanyaan');
-            $table->text('jawaban');
-            $table->timestamp('created_at')->useCurrent();
+        Schema::create('chat_messages', function (Blueprint $table) {
+         $table->id();
+        $table->foreignId('chat_session_id')->constrained()->onDelete('cascade');
+        $table->enum('role', ['user', 'bot']);
+        $table->text('text');
+        $table->timestamps();
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chatbot_logs');
+        Schema::dropIfExists('chat_messages');
     }
 };

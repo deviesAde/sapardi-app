@@ -1,119 +1,123 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import { MoveLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { MoveLeft } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
-// Tipe data untuk pesan chat
 type ChatMessage = {
     role: 'user' | 'bot';
     text: string;
 };
 
-// Tipe data untuk sesi chat
-type Chat = {
+type ChatSession = {
     id: number;
     prompt: string;
     messages: ChatMessage[];
 };
 
 const Chatbot: React.FC = () => {
-    // State untuk riwayat chat
-    const [chatHistory, setChatHistory] = useState<Chat[]>([]);
-
-    // State untuk sesi chat saat ini
-    const [currentChat, setCurrentChat] = useState<Chat>({
-        id: Date.now(),
-        prompt: '',
-        messages: [],
-    });
-
-    // State untuk input prompt dan status loading
     const [prompt, setPrompt] = useState('');
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);
+    const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+    const [sessionId, setSessionId] = useState<number | null>(null);
 
-    // Fungsi untuk menghapus format Markdown dari respons bot
-    const cleanBotResponse = (response: string): string => {
-        return response.replace(/\*\*/g, ''); // Menghapus tanda **
-    };
+    // Load all chat history on mount
+    useEffect(() => {
+        fetchHistory();
+    }, []);
 
-    // Fungsi untuk mengirim pesan
-    const handleSend = async () => {
-        if (!prompt.trim()) return;
-
-        const userMessage: ChatMessage = { role: 'user', text: prompt };
-
-
-        setCurrentChat((prev) => ({
-            ...prev,
-            prompt: prev.prompt || prompt,
-            messages: [...prev.messages, userMessage],
-        }));
-
-        setLoading(true);
+    const fetchHistory = async () => {
         try {
+            const response = await axios.get('/chatbot');
+            const data = response.data.chatSessions;
 
-            const res = await axios.post('/chatbot', { prompt });
-            const botResponse = res.data.choices?.[0]?.message?.content || 'Bot tidak bisa menjawab.';
-
-            const botMessage: ChatMessage = { role: 'bot', text: cleanBotResponse(botResponse) };
-
-
-            const updatedChat: Chat = {
-                ...currentChat,
-                prompt: currentChat.prompt || prompt,
-                messages: [...currentChat.messages, userMessage, botMessage],
-            };
-
-            setCurrentChat(updatedChat);
-
-
-            const updatedHistory = chatHistory.filter((chat) => chat.id !== updatedChat.id);
-            updatedHistory.unshift(updatedChat);
-
-
-            if (updatedHistory.length > 8) {
-                updatedHistory.pop();
+            // Pastikan data ada sebelum mengakses 'length'
+            if (data && Array.isArray(data)) {
+                setChatHistory(data); // Setel data ke state chatSessions
+            } else {
+                setChatHistory([]);
             }
-
-            setChatHistory(updatedHistory);
-        } catch (err) {
-            alert('Gagal mendapatkan jawaban dari bot.');
-        } finally {
-            setPrompt('');
-            setLoading(false);
+        } catch (error) {
+            console.error('Gagal mengambil riwayat:', error);
+            setChatHistory([]);
         }
     };
 
-
-    const handleSelectHistory = (chat: Chat) => {
-        setCurrentChat(chat);
+    const cleanBotResponse = (response: string): string => {
+        return response.replace(/\*\*/g, ''); 
     };
 
-    const handleNewChat = () => {
-        setCurrentChat({
-            id: Date.now(),
-            prompt: '',
-            messages: [],
+const handleSend = async () => {
+    if (!prompt.trim()) return;
+
+    const userMessage: ChatMessage = { role: 'user', text: prompt };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setLoading(true);
+
+    try {
+        const res = await axios.post('/chatbot', {
+            prompt,
+            session_id: sessionId,
         });
+
+        const session_id = res.data.session_id;
+        const botContent = res.data.messages?.at(-1)?.text || 'Bot tidak menjawab';
+        const botMessage: ChatMessage = { role: 'bot', text: cleanBotResponse(botContent) };
+
+        setSessionId(session_id);
+        setMessages([...updatedMessages, botMessage]);
+
+        fetchHistory();
+    } catch (err) {
+        if (axios.isAxiosError(err)) {
+
+            const status = err.response?.status;
+            const errorMessage = err.response?.data?.message || err.message;
+            console.error(`Error ${status}:`, errorMessage);
+            alert(`Gagal mendapatkan jawaban dari bot: ${errorMessage}`);
+        } else if (err instanceof Error) {
+
+            alert('Gagal mendapatkan jawaban dari bot: ' + err.message);
+        } else {
+
+            alert('Terjadi error yang tidak diketahui saat mengirim pesan.');
+        }
+    } finally {
+        setPrompt('');
+        setLoading(false);
+    }
+};
+
+    const handleNewChat = async () => {
+        try {
+            const res = await axios.post('/chatbot/new');
+            setSessionId(res.data.id);
+            setMessages([]); // Clear current messages
+            setPrompt(''); // Clear the input prompt
+            fetchHistory(); // Reload chat history
+        } catch (err) {
+            console.error('Gagal membuat sesi baru:', err);
+        }
     };
 
+    const handleSelectHistory = (chat: ChatSession) => {
+        setSessionId(chat.id);
+        setMessages(chat.messages);
+    };
 
-    const handleClearHistory = () => {
+    const handleClearHistory = async () => {
+        await axios.delete('/chatbot');
         setChatHistory([]);
+        setSessionId(null);
+        setMessages([]);
     };
 
     return (
         <div className="flex h-screen bg-[#67AE6E]">
             <div className="m-6 flex flex-1 flex-col rounded-2xl bg-white p-6">
-
                 <div className="mb-4 flex items-center justify-between">
-
-
-                    <Button
-                       
-                        className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-                        onClick={() => (window.location.href = '/')}
-                    >
+                    <Button className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600" onClick={() => (window.location.href = '/')}>
                         <MoveLeft className="mr-2 h-4 w-4" />
                         Kembali ke Home
                     </Button>
@@ -127,8 +131,8 @@ const Chatbot: React.FC = () => {
                 </div>
 
                 <div className="mb-4 flex-1 space-y-4 overflow-y-auto rounded-xl bg-gray-100 p-4">
-                    {currentChat.messages.length > 0 ? (
-                        currentChat.messages.map((msg, idx) => (
+                    {messages.length > 0 ? (
+                        messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div
                                     className={`max-w-xs rounded-xl p-3 whitespace-pre-wrap ${
@@ -146,7 +150,6 @@ const Chatbot: React.FC = () => {
                     )}
                 </div>
 
-                {/* Input Prompt */}
                 <div className="mt-2 flex">
                     <input
                         className="flex-1 rounded-l-xl bg-gray-200 p-3 text-black"
@@ -166,17 +169,12 @@ const Chatbot: React.FC = () => {
             <div className="m-6 w-72 rounded-2xl bg-white p-4">
                 <h2 className="mb-4 text-2xl font-bold text-green-900">History Chat</h2>
                 <div className="space-y-3">
-                    {/* Tombol New Chat */}
                     <button onClick={handleNewChat} className="w-full rounded-xl bg-green-500 py-2 text-white hover:bg-green-600">
                         New Chat
                     </button>
-
-                    {/* Tombol Clear History */}
                     <button onClick={handleClearHistory} className="w-full rounded-xl bg-red-500 py-2 text-white hover:bg-red-600">
                         Clear History
                     </button>
-
-                    {/* Riwayat Chat */}
                     {chatHistory.map((chat) => (
                         <div
                             key={chat.id}
@@ -192,4 +190,4 @@ const Chatbot: React.FC = () => {
     );
 };
 
-export default Chatbot;
+export default  Chatbot;

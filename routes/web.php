@@ -36,6 +36,10 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':user'])->group(
     Route::get('/hasil-scan-penyakit', [DiagnosaController::class, 'hasilDiagnosa'])->name('hasil.diagnosa');
     Route::post('/hasil-scan-penyakit', [DiagnosaController::class, 'store'])->name('hasil.diagnosa');
 
+    Route::get('/riwayat-scan', [DiagnosaController::class, 'riwayatScan'])->name('riwayat.scan');
+
+
+
     Route::get('/chatbot', function () {
         return Inertia::render('chatbot');
     })->name('chatbot');
@@ -66,12 +70,11 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':user'])->group(
 
     Route::get('/edit', function () {
         return Inertia::render('editProfile', [
-        'auth' => [
-            'user' => Auth::user(),
-        ],
-    ]);
+            'auth' => [
+                'user' => Auth::user(),
+            ],
+        ]);
     });
-
 });
 
 

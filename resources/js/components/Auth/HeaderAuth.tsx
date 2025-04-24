@@ -1,20 +1,28 @@
 'use client';
+import { Button } from '@/components/ui/button';
 import { MobileNav, MobileNavHeader, MobileNavMenu, MobileNavToggle, Navbar, NavbarLogo, NavBody } from '@/components/ui/resizable-navbar';
 import { Inertia } from '@inertiajs/inertia';
-import { usePage } from '@inertiajs/react';
-import { CircleUserRound } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { CircleUserRound, LogOut } from 'lucide-react';
 import { useState } from 'react';
-import { LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {Link} from '@inertiajs/react';
-
 
 export function HeaderAuth() {
     const { auth } = usePage<{ auth: { user?: { id: number; name: string } } }>().props; // Mengambil data autentikasi dari backend
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
-        Inertia.post('/logout'); // Mengirim permintaan logout ke backend
+        Inertia.post(
+            '/logout',
+            {},
+            {
+                onSuccess: () => {
+                    console.log('Berhasil logout');
+                },
+                onError: () => {
+                    console.error('Gagal logout');
+                },
+            },
+        ); // Mengirim permintaan logout ke backend
     };
 
     return (
@@ -47,7 +55,7 @@ export function HeaderAuth() {
                         <div className="flex w-full flex-col gap-4">
                             <button
                                 onClick={handleLogout}
-                                className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                                className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800"
                             >
                                 Logout
                             </button>

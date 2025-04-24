@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('diagnosis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('penyakit_id')->constrained('penyakit_padi')->onDelete('cascade');
+            $table->foreignId('penyakit_id')
+                ->nullable() // <-- memungkinkan null
+                ->constrained('penyakit_padi')
+                ->onDelete('cascade');
             $table->string('gambar_input');
             $table->string('hasil_diagnosis');
             $table->float('confidence');

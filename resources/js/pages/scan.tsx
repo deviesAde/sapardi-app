@@ -1,15 +1,14 @@
+import Header from '@/components/Auth/HeaderAuth';
 import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { Camera, FolderInput, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import Header from '@/components/Auth/HeaderAuth';
 
 export default function ScanPenyakit() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
-
 
     const handleUseImage = async () => {
         if (!capturedImage) return;
@@ -106,10 +105,14 @@ export default function ScanPenyakit() {
         <div className="min-h-screen bg-gray-100">
             <Header />
 
-
             <main className="mx-auto w-full max-w-full rounded bg-white p-6 shadow">
-                <div className="mb-6 text-center">
+                <div className="relative mb-6 flex items-center justify-center">
                     <h1 className="text-2xl font-bold text-green-600">Scan Penyakit</h1>
+                    <div className="absolute right-0">
+                        <Button className="bg-[#67AE6E] text-white hover:bg-green-500" onClick={() => router.get('/riwayat-scan')}>
+                            Riwayat Scan
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-center lg:space-x-8">

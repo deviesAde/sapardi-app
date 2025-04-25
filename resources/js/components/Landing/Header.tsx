@@ -10,7 +10,7 @@ import {
     NavBody,
     NavItems,
 } from '@/components/ui/resizable-navbar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function Header() {
     const navItems = [
@@ -29,10 +29,33 @@ export function Header() {
     ];
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Effect untuk memantau scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true); // Setelah scroll lebih dari 50px, beri transparansi dan floating
+            } else {
+                setIsScrolled(false); // Jika di atas, beri warna pada header
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        // Cleanup
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
-        <div className="relative w-full bg-[#123524]">
-            <Navbar>
+        <div className="relative w-full">
+            <Navbar
+                className={`${
+                    isScrolled
+                        ? 'fixed top-0 left-0 w-full bg-[rgba(18,53,36,0)] shadow-none' // full transparan saat floating
+                        : 'bg-[#123524]'
+                } transition-all duration-300`}
+            >
                 <NavBody>
                     <NavbarLogo />
                     <NavItems items={navItems} className="text-[#F4D793]" />

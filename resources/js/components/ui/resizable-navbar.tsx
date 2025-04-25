@@ -103,8 +103,8 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         minWidth: "800px",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
-        visible && "bg-white/80 dark:bg-neutral-950/80",
+        "relative z-0 mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-2xl bg-transparent px-6 py-2 lg:flex dark:bg-transparent",
+        visible && "bg-transparent dark:bg-transparent", // Mengubah latar belakang agar transparan
         className,
       )}
     >
@@ -128,7 +128,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
         <a
           onMouseEnter={() => setHovered(idx)}
           onClick={onItemClick}
-          className="relative px-4 py-2 text-[#F4D793] dark:text-[#F4D793]"
+          className="relative px-4 text-lg py-2 text-[#F4D793] dark:text-[#F4D793]"
           key={`link-${idx}`}
           href={item.link}
         >
@@ -166,7 +166,7 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
       }}
       className={cn(
         "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
-        visible && "bg-white/80 dark:bg-neutral-950/80",
+        visible && "bg-transparent dark:bg-transparent", // Transparan saat terbuka
         className,
       )}
     >
@@ -242,7 +242,7 @@ export const NavbarLogo = () => {
         width={35}
         height={35}
       />
-      <span className="text-2xl font-bold text-[#F4D793] dark:text-[#F4D793] ml-2 mt-5">SAPARDI</span>
+      <span className="text-2xl font-bold text-[#F4D793] dark:text-[#F4D793] ml-2 ">SAPARDI</span>
     </a>
   );
 };

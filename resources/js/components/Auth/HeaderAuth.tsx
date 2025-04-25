@@ -1,14 +1,51 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { MobileNav, MobileNavHeader, MobileNavMenu, MobileNavToggle, Navbar, NavbarLogo, NavBody } from '@/components/ui/resizable-navbar';
+import {
+    MobileNav,
+    MobileNavHeader,
+    MobileNavMenu,
+    MobileNavToggle,
+    Navbar,
+    NavbarButton,
+    NavbarLogo,
+    NavBody,
+    NavItems,
+} from '@/components/ui/resizable-navbar';
 import { Inertia } from '@inertiajs/inertia';
 import { Link, usePage } from '@inertiajs/react';
 import { CircleUserRound, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function HeaderAuth() {
     const { auth } = usePage<{ auth: { user?: { id: number; name: string } } }>().props; // Mengambil data autentikasi dari backend
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false); // Menambahkan state untuk deteksi scroll
+
+    const navItems = [
+        {
+            name: 'Home',
+            link: '/',
+        },
+        {
+            name: 'Lihat Profil',
+            link: '/edit',
+        },
+    ];
+
+    // Effect untuk memantau scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true); // Setelah scroll lebih dari 50px, beri transparansi dan floating
+            } else {
+                setIsScrolled(false); // Jika di atas, beri warna pada header
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        // Cleanup
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleLogout = () => {
         Inertia.post(
@@ -22,14 +59,21 @@ export function HeaderAuth() {
                     console.error('Gagal logout');
                 },
             },
-        ); // Mengirim permintaan logout ke backend
+        );
     };
 
     return (
-        <div className="relative w-full bg-[#123524]">
-            <Navbar>
+        <div className="relative w-full">
+            <Navbar
+                className={`${
+                    isScrolled
+                        ? 'fixed top-0 left-0 w-full bg-[rgba(18,53,36,0)] shadow-none' // transparansi lebih kuat saat floating
+                        : 'bg-[#123524]'
+                } transition-all duration-300`}
+            >
                 <NavBody>
                     <NavbarLogo />
+                    <NavItems items={navItems} className="text-[#F4D793]" />
 
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
@@ -39,9 +83,12 @@ export function HeaderAuth() {
                             <span className="text-[#F4D793]">{auth.user?.name}</span>
                         </div>
 
-                        <Button variant="destructive" onClick={handleLogout}>
-                            <LogOut className="mr-2 h-4 w-4" /> Logout
-                        </Button>
+                        <div className="flex flex-col items-center gap-4">
+                            <NavbarButton onClick={handleLogout} variant="primary" className="inline-flex bg-[#eb1026] text-[#edf5f1]">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Logout
+                            </NavbarButton>
+                        </div>
                     </div>
                 </NavBody>
 
@@ -52,13 +99,23 @@ export function HeaderAuth() {
                     </MobileNavHeader>
 
                     <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
-                        <div className="flex w-full flex-col gap-4">
-                            <button
-                                onClick={handleLogout}
-                                className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800"
-                            >
-                                Logout
-                            </button>
+                        <div className="flex flex-col gap-4">
+                            {navItems.map((item, idx) => (
+                                <Link
+                                    key={`mobile-link-${idx}`}
+                                    href={item.link}
+                                    className="block text-[#F4D793]"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+                            <div className="flex flex-col items-center gap-4">
+                                <NavbarButton onClick={handleLogout} variant="primary" className="inline-flex bg-[#eb1026] text-[#edf5f1]">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Logout
+                                </NavbarButton>
+                            </div>
                         </div>
                     </MobileNavMenu>
                 </MobileNav>

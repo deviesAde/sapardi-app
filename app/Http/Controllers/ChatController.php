@@ -44,15 +44,19 @@ class ChatController extends Controller
         $session = $sessionId
             ? ChatSession::firstOrCreate(['id' => $sessionId, 'user_id' => $user->id])
             : ChatSession::create(['user_id' => $user->id, 'prompt' => $prompt]);
+            
+        if (empty($session->prompt)) {
+        $session->prompt = $prompt;
+         $session->save();
+        }
 
-        // Simpan pesan user
         ChatMessage::create([
             'chat_session_id' => $session->id,
             'role' => 'user',
             'text' => $prompt,
         ]);
 
-        // Kirim prompt ke Groq API
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
             'Content-Type' => 'application/json',
@@ -75,7 +79,7 @@ class ChatController extends Controller
 
        $reply = $response->json()['choices'][0]['message']['content'] ?? 'Tidak ada jawaban';
 
-        // Simpan jawaban dari bot
+
         ChatMessage::create([
             'chat_session_id' => $session->id,
             'role' => 'bot',
@@ -93,7 +97,7 @@ class ChatController extends Controller
         $user = Auth::user();
         $session = ChatSession::create([
             'user_id' => $user->id,
-            'prompt' => 'New Chat',
+            'prompt' => '',
         ]);
 
         return response()->json(['id' => $session->id]);

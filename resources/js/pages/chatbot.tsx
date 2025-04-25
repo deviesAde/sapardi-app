@@ -31,9 +31,9 @@ const Chatbot: React.FC = () => {
             const response = await axios.get('/chatbot');
             const data = response.data.chatSessions;
 
-            // Pastikan data ada sebelum mengakses 'length'
+            
             if (data && Array.isArray(data)) {
-                setChatHistory(data); // Setel data ke state chatSessions
+                setChatHistory(data);
             } else {
                 setChatHistory([]);
             }
@@ -44,7 +44,7 @@ const Chatbot: React.FC = () => {
     };
 
     const cleanBotResponse = (response: string): string => {
-        return response.replace(/\*\*/g, ''); 
+        return response.replace(/\*\*/g, '');
     };
 
 const handleSend = async () => {

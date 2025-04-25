@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('penyakit_id')
-                ->nullable() // <-- memungkinkan null
+                ->nullable() 
                 ->constrained('penyakit_padi')
                 ->onDelete('cascade');
             $table->string('gambar_input');

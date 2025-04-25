@@ -1,23 +1,31 @@
 import Header from '@/components/Auth/HeaderAuth';
 import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Camera, FolderInput, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+
+// Create animated button component
+const AnimatedButton = motion(Button);
 
 export default function ScanPenyakit() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showTips, setShowTips] = useState(true);
 
     const handleUseImage = async () => {
         if (!capturedImage) return;
 
-        const formData = new FormData();
-        const blob = await (await fetch(capturedImage)).blob();
-        formData.append('image', blob, 'scan.png');
+        setIsLoading(true);
 
         try {
+            const formData = new FormData();
+            const blob = await (await fetch(capturedImage)).blob();
+            formData.append('image', blob, 'scan.png');
+
             const response = await fetch('http://localhost:5000/predict', {
                 method: 'POST',
                 body: formData,
@@ -28,10 +36,8 @@ export default function ScanPenyakit() {
             if (data.success) {
                 const results = JSON.parse(data.results);
                 const label = results[0]?.name || 'Tidak dikenali';
-
                 const imagePath = data.image;
 
-                // Kirim ke Laravel
                 router.post('/hasil-scan-penyakit', {
                     image: imagePath,
                     label: label,
@@ -39,13 +45,21 @@ export default function ScanPenyakit() {
             }
         } catch (error) {
             console.error('Gagal mengirim gambar ke Flask:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const openCamera = async () => {
         setIsCameraOpen(true);
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                },
+            });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 videoRef.current.play();
@@ -102,73 +116,196 @@ export default function ScanPenyakit() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
             <Header />
 
-            <main className="mx-auto w-full max-w-full rounded bg-white p-6 shadow">
-                <div className="relative mb-6 flex items-center justify-center">
-                    <h1 className="text-2xl font-bold text-green-600">Scan Penyakit</h1>
-                    <div className="absolute right-0">
-                        <Button className="bg-[#67AE6E] text-white hover:bg-green-500" onClick={() => router.get('/riwayat-scan')}>
+            <main className="mx-auto w-full max-w-full rounded p-6">
+                <div className="relative mb-8 flex items-center justify-center">
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="text-3xl font-bold text-green-600"
+                    >
+                        Scan Penyakit Tanaman
+                    </motion.h1>
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="absolute right-0"
+                    >
+                        <AnimatedButton
+                            className="bg-[#67AE6E] text-white hover:bg-green-500"
+                            onClick={() => router.get('/riwayat-scan')}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
                             Riwayat Scan
-                        </Button>
-                    </div>
+                        </AnimatedButton>
+                    </motion.div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-center lg:space-x-8">
-                    {isCameraOpen && (
-                        <div className="flex flex-col items-center lg:w-2/3">
-                            <video ref={videoRef} className="h-[300px] w-full rounded-lg object-cover shadow-lg lg:h-[500px]"></video>
+                <div className="flex flex-col items-center lg:flex-row lg:items-start lg:justify-center lg:space-x-8">
+                    <AnimatePresence mode="wait">
+                        {isCameraOpen && !capturedImage && (
+                            <motion.div
+                                key="camera"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.3 }}
+                                className="flex w-full flex-col items-center lg:w-2/3"
+                            >
+                                <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl">
+                                    <video ref={videoRef} className="h-[300px] w-full rounded-lg object-cover lg:h-[500px]" />
+                                    <div className="absolute inset-0 rounded-lg ring-2 ring-green-400 ring-offset-4"></div>
+                                </div>
 
-                            <div className="mt-4 flex space-x-4">
-                                <Button onClick={captureImage} className="rounded bg-[#67AE6E] px-4 py-2 font-semibold text-white hover:bg-green-500">
-                                    <Camera className="mr-2 h-4 w-4" />
-                                    Ambil Gambar
-                                </Button>
-
-                                <label>
-                                    <Button asChild className="rounded bg-[#67AE6E] px-4 py-2 font-semibold text-white hover:bg-green-500">
-                                        <div>
-                                            <FolderInput className="mr-2 h-4 w-4" />
-                                            Upload Gambar
-                                        </div>
-                                    </Button>
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                                </label>
-                            </div>
-
-                            {/* Tips and Tricks */}
-                            <div className="mt-10 w-full max-w-4xl rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm lg:mt-0 lg:w-1/3">
-                                <h3 className="mb-2 text-lg font-semibold text-green-700">Tips & Trik untuk Hasil Scan yang Optimal</h3>
-                                <ul className="list-disc space-y-1 pl-5 text-gray-700">
-                                    <li>Pastikan gambar tanaman terlihat jelas dan fokus.</li>
-                                    <li>Pencahayaan yang cukup sangat membantu pendeteksian.</li>
-                                    <li>Jangan ada tangan atau objek lain yang menutupi bagian tanaman.</li>
-                                    <li>Foto dari jarak sedang, tidak terlalu dekat atau jauh.</li>
-                                    <li>Usahakan background sederhana agar sistem lebih mudah mendeteksi penyakit.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    )}
-
-                    {capturedImage && (
-                        <div className="mt-6 text-center">
-                            <h2 className="text-lg font-bold text-green-600">Captured Image</h2>
-                            <img src={capturedImage} alt="Captured" className="mx-auto mt-4 h-96 w-auto rounded-lg" />
-                            <div className="mt-4 flex space-x-4">
-                                <Button
-                                    onClick={resetToInitialState}
-                                    className="rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500"
+                                <motion.div
+                                    className="mt-6 flex space-x-4"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
                                 >
-                                    <RotateCcw className="mr-2 h-4 w-4" />
-                                    Ulangi
-                                </Button>
-                                <button className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500" onClick={handleUseImage}>
-                                    Gunakan gambar ini
-                                </button>
-                            </div>
+                                    <AnimatedButton
+                                        onClick={captureImage}
+                                        className="rounded-full bg-[#67AE6E] px-6 py-3 font-semibold text-white shadow-lg hover:bg-green-500"
+                                        whileHover={{ scale: 1.05, boxShadow: '0 10px 20px rgba(103, 174, 110, 0.3)' }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <Camera className="mr-2 h-5 w-5" />
+                                        Ambil Gambar
+                                    </AnimatedButton>
+
+                                    <label>
+                                        <AnimatedButton
+                                            asChild
+                                            className="rounded-full bg-[#4a8cff] px-6 py-3 font-semibold text-white shadow-lg hover:bg-blue-500"
+                                            whileHover={{ scale: 1.05, boxShadow: '0 10px 20px rgba(74, 140, 255, 0.3)' }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <div>
+                                                <FolderInput className="mr-2 h-5 w-5" />
+                                                Upload Gambar
+                                            </div>
+                                        </AnimatedButton>
+                                        <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                                    </label>
+                                </motion.div>
+                            </motion.div>
+                        )}
+
+                        {capturedImage && (
+                            <motion.div
+                                key="preview"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-6 w-full text-center lg:w-2/3"
+                            >
+                                <h2 className="mb-4 text-2xl font-bold text-green-600">Pratinjau Gambar</h2>
+                                <div className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-2xl shadow-xl">
+                                    <img src={capturedImage} alt="Captured" className="h-auto w-full rounded-lg object-contain" />
+                                    <div className="absolute inset-0 rounded-lg ring-2 ring-green-400 ring-offset-4"></div>
+                                </div>
+
+                                <motion.div
+                                    className="mt-8 flex justify-center space-x-4"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    <AnimatedButton
+                                        onClick={resetToInitialState}
+                                        className="rounded-full bg-red-500 px-6 py-3 font-semibold text-white shadow-lg hover:bg-red-600"
+                                        whileHover={{ scale: 1.05, boxShadow: '0 10px 20px rgba(239, 68, 68, 0.3)' }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <RotateCcw className="mr-2 h-5 w-5" />
+                                        Ambil Ulang
+                                    </AnimatedButton>
+                                    <AnimatedButton
+                                        onClick={handleUseImage}
+                                        className="rounded-full bg-[#67AE6E] px-6 py-3 font-semibold text-white shadow-lg hover:bg-green-600"
+                                        whileHover={{ scale: 1.05, boxShadow: '0 10px 20px rgba(103, 174, 110, 0.3)' }}
+                                        whileTap={{ scale: 0.95 }}
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <span className="flex items-center">
+                                                <svg className="mr-2 h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        stroke="currentColor"
+                                                        strokeWidth="4"
+                                                    ></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                    ></path>
+                                                </svg>
+                                                Memproses...
+                                            </span>
+                                        ) : (
+                                            'Analisis Gambar Ini'
+                                        )}
+                                    </AnimatedButton>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Tips and Tricks */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className={`mt-10 w-full max-w-4xl rounded-2xl bg-white p-6 shadow-xl transition-all duration-300 lg:mt-0 lg:w-1/3 ${showTips ? 'border-l-4 border-green-500' : ''}`}
+                    >
+                        <div className="flex cursor-pointer items-center justify-between" onClick={() => setShowTips(!showTips)}>
+                            <h3 className="text-xl font-bold text-green-700">Tips & Trik untuk Hasil Optimal</h3>
+                            <motion.div animate={{ rotate: showTips ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </motion.div>
                         </div>
-                    )}
+
+                        {showTips && (
+                            <motion.ul
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-4 space-y-3 overflow-hidden pl-5"
+                            >
+                                {[
+                                    'Gunakan pencahayaan yang cukup dan merata',
+                                    'Fokuskan kamera pada daun atau area yang terkena penyakit',
+                                    'Jaga jarak sekitar 30-50 cm dari tanaman',
+                                    'Hindari bayangan yang mengganggu',
+                                    'Gunakan background polos untuk kontras lebih baik',
+                                    'Pastikan gambar tidak blur dengan menahan kamera tetap',
+                                ].map((tip, index) => (
+                                    <motion.li
+                                        key={index}
+                                        className="relative text-gray-700 before:absolute before:top-2 before:-left-5 before:h-2 before:w-2 before:rounded-full before:bg-green-500"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 * index }}
+                                    >
+                                        {tip}
+                                    </motion.li>
+                                ))}
+                            </motion.ul>
+                        )}
+                    </motion.div>
                 </div>
 
                 <canvas ref={canvasRef} className="hidden"></canvas>

@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ChatController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\PenyakitController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -18,13 +21,13 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin'])->group
         return Inertia::render('dashboard');
     })->name('admin.dashboard');
 
-    Route::get('/kelolaAkun', function () {
-        return Inertia::render('kelolaAkun');
-    })->name('kelolaAkun');
+    Route::get('/kelolaAkun', [AccountController::class, 'index'])->name('kelolaAkun');
+    Route::resource('accounts', AccountController::class);
 
-    Route::get('/kelolaPenyakit', function () {
-        return Inertia::render('kelolaPenyakit');
-    })->name('kelolaPenyakit');
+    Route::get('/kelolaPenyakit', [PenyakitController::class, 'index'])->name('kelolaPenyakit');
+    Route::resource('penyakit', PenyakitController::class);
+
+
 });
 
 // User routes
@@ -38,9 +41,9 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':user'])->group(
 
     Route::get('/riwayat-scan', [DiagnosaController::class, 'riwayatScan'])->name('riwayat.scan');
     Route::get('/chatbot', [ChatController::class, 'index']);
-Route::post('/chatbot', [ChatController::class, 'store']);
-Route::post('/chatbot/new', [ChatController::class, 'newSession']);
-Route::delete('/chatbot', [ChatController::class, 'clear']);
+    Route::post('/chatbot', [ChatController::class, 'store']);
+    Route::post('/chatbot/new', [ChatController::class, 'newSession']);
+    Route::delete('/chatbot', [ChatController::class, 'clear']);
 
 
 
@@ -53,6 +56,8 @@ Route::delete('/chatbot', [ChatController::class, 'clear']);
     });
 });
 
+Route::post('verify-otp', [RegisteredUserController::class, 'verifyOtp'])
+    ->name('otp.verify');
 
 Route::fallback(function () {
     return Inertia::render('page-not-found', [

@@ -32,25 +32,19 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+
+    Route::get('otp', [RegisteredUserController::class, 'showOtp'])
+        ->name('otp.show');
+    Route::post('verify-otp', [RegisteredUserController::class, 'verifyOtp'])
+    ->name('otp.verify');
+    Route::post('/resend-otp', [RegisteredUserController::class, 'resend'])->name('otp.resend');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
-
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
-
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
-
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

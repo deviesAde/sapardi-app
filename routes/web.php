@@ -19,7 +19,7 @@ Route::get('/', function () {
 
 // Admin routes
 Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin', TrackUserActivity::class])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/kelolaAkun', [AccountController::class, 'index'])->name('kelolaAkun');
     Route::resource('accounts', AccountController::class);

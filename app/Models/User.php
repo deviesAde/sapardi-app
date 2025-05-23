@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'otp',
+        'otp_expires_at',
+        "is_verified",
     ];
 
     /**
@@ -45,4 +48,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function chatSessions()
+{
+    return $this->hasMany(ChatSession::class);
+}
 }

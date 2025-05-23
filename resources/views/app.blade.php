@@ -28,9 +28,14 @@
             html.dark {
                 background-color: oklch(0.145 0 0);
             }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'Sapardi') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -39,8 +44,28 @@
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const loadingElement = document.getElementById('loading');
+
+                // Tampilkan loading saat Inertia memulai navigasi
+                window.addEventListener('inertia:start', () => {
+                    loadingElement.style.display = 'flex';
+                });
+
+                // Sembunyikan loading saat Inertia selesai memuat halaman
+                window.addEventListener('inertia:finish', () => {
+                    loadingElement.style.display = 'none';
+                });
+            });
+        </script>
     </head>
     <body class="font-sans antialiased">
+        <div id="loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; display: none;">
+            <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #131e15; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        </div>
+
         @inertia
     </body>
 </html>

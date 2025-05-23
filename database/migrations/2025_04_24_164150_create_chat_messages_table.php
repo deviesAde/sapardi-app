@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-          Schema::table('users', function (Blueprint $table) {
-        $table->string('role')->default('user'); // Default role adalah 'user'
-    });
+        Schema::create('chat_messages', function (Blueprint $table) {
+         $table->id();
+        $table->foreignId('chat_session_id')->constrained()->onDelete('cascade');
+        $table->enum('role', ['user', 'bot']);
+        $table->text('text');
+        $table->timestamps();
+        });
     }
 
     /**
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('chat_messages');
     }
 };

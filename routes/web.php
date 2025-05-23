@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PenyakitController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -17,17 +18,14 @@ Route::get('/', function () {
 
 // Admin routes
 Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/counts', [DashboardController::class, 'getCounts'])->name('admin.dashboard.counts');
 
     Route::get('/kelolaAkun', [AccountController::class, 'index'])->name('kelolaAkun');
     Route::resource('accounts', AccountController::class);
 
     Route::get('/kelolaPenyakit', [PenyakitController::class, 'index'])->name('kelolaPenyakit');
     Route::resource('penyakit', PenyakitController::class);
-
-
 });
 
 // User routes

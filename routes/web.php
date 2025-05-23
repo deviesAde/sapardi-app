@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PenyakitController;
-use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Middleware\TrackUserActivity;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -20,13 +20,12 @@ Route::get('/', function () {
 // Admin routes
 Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin', TrackUserActivity::class])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
     Route::get('/kelolaAkun', [AccountController::class, 'index'])->name('kelolaAkun');
     Route::resource('accounts', AccountController::class);
 
     Route::get('/kelolaPenyakit', [PenyakitController::class, 'index'])->name('kelolaPenyakit');
     Route::resource('penyakit', PenyakitController::class);
-
-
 });
 
 // User routes

@@ -1,11 +1,20 @@
-
+import { CalendarDash } from '@/components/calender-dashboard';
+import { ChartBar } from '@/components/chart-user';
+import { CounterData } from '@/components/counter-data';
+import { TableDashboard } from '@/components/table-dashboard';
+import UserStatusLog from '@/components/user-log';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { PageProps } from '@inertiajs/core';
 import { Head } from '@inertiajs/react';
-import { ChartBar } from '@/components/chart-user';
-import { TableDashboard } from '@/components/table-dashboard';
-import { CalendarDash } from '@/components/calender-dashboard';
- import UserStatusLog from '@/components/user-log';
+
+interface DashboardProps extends PageProps {
+    counts?: {
+        total_users: number;
+        total_diseases: number;
+        active_users: number;
+    };
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -26,7 +35,8 @@ type User = {
 interface DashboardProps {
     users: User[];
 }
-export default function Dashboard({ users }: DashboardProps) {
+
+export default function Dashboard({ users, counts }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -54,6 +64,18 @@ export default function Dashboard({ users }: DashboardProps) {
                     <UserStatusLog users={users} />
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min"></div>
+                =======
+                {/* Counter Data Section */}
+                <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4">
+                    <div className="w-full overflow-x-auto">
+                        {/* Menggunakan props counts langsung jika tersedia, fallback ke API */}
+                        {counts ? <CounterData counts={counts} /> : <CounterData apiEndpoint="/api/dashboard/counts" />}
+                    </div>
+                </div>
+                {/* Additional Content Section */}
+                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
+                    {/* Konten tambahan bisa dimasukkan di sini */}
+                </div>
             </div>
         </AppLayout>
     );

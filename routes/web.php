@@ -10,17 +10,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PenyakitController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Middleware\TrackUserActivity;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
 // Admin routes
-Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('admin.dashboard');
-
+Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin', TrackUserActivity::class])->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/kelolaAkun', [AccountController::class, 'index'])->name('kelolaAkun');
     Route::resource('accounts', AccountController::class);
 
@@ -31,7 +30,7 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin'])->group
 });
 
 // User routes
-Route::middleware(['auth', 'verified', RoleMiddleware::class . ':user'])->group(function () {
+Route::middleware(['auth', 'verified', RoleMiddleware::class . ':user', TrackUserActivity::class])->group(function () {
     Route::get('/scan', function () {
         return Inertia::render('scan');
     })->name('user.dashboard');

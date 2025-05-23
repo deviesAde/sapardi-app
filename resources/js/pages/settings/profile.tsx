@@ -54,7 +54,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                             <Input
                                 id="name"
-                                className="mt-1 block w-full"
+                                className="mt-1 block w-full text-white"
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
@@ -71,7 +71,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             <Input
                                 id="email"
                                 type="email"
-                                className="mt-1 block w-full"
+                                className="mt-1 block w-full text-white"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 required

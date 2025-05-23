@@ -14,6 +14,14 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
+    // server: {
+    //     host: '0.0.0.0',
+    //     port: 5173,
+    //     hmr: {
+    //         host: '192.168.0.248', // ← GANTI dengan IP laptop kamu
+    //     },
+    // },
+
     esbuild: {
         jsx: 'automatic',
     },

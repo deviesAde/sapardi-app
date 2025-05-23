@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,23 +25,47 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
 
-        $request->session()->regenerate();
+ public function store(LoginRequest $request): RedirectResponse
+{
+    $request->authenticate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    $request->session()->regenerate();
+
+
+  $redirectUrl = $request->input('redirect', null);
+
+    if ($redirectUrl) {
+        return redirect()->to($redirectUrl);
     }
+
+
+    $role = Auth::user()->role;
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard'); // Admin dashboard
+    } elseif ($role === 'user') {
+        return redirect('/');
+    }
+
+
+    return redirect('/');
+
+}
 
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
     {
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user) {
+            $user->update([
+                'last_seen' => now()->subMinutes(10), // atau null
+            ]);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
@@ -48,4 +73,5 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
 }

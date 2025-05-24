@@ -1,4 +1,5 @@
 import HeaderAuth from '@/components/Auth/HeaderAuth';
+import GrowingLoader from '@/components/GrowingLoader';
 import ChatBotSection from '@/components/Landing/chatbotsection';
 import WhyChooseUs from '@/components/Landing/Feature';
 import Footer from '@/components/Landing/Footer';
@@ -6,12 +7,21 @@ import Header from '@/components/Landing/Header';
 import Hero from '@/components/Landing/hero';
 import { usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-
+import { useEffect, useState } from 'react';
 
 const Welcome = () => {
     const { auth } = usePage<{ auth: { user?: { id: number; name: string } } }>().props;
 
-    // Animation variants
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 6000);
+        return () => clearTimeout(timer);
+    }, []);
+
+   
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -35,10 +45,10 @@ const Welcome = () => {
         },
     };
 
+    if (isLoading) return <GrowingLoader />;
+
     return (
         <div className="overflow-x-hidden">
-            
-
             {/* Header with fade animation */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
                 {auth.user ? <HeaderAuth /> : <Header />}

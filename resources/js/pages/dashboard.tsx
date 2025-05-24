@@ -40,7 +40,7 @@ export default function Dashboard({ users, counts }: DashboardProps) {
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4">
                     <div className="w-full overflow-x-auto">
-                        {/* Menggunakan props counts langsung jika tersedia, fallback ke API */}
+
                         {counts ? <CounterData counts={counts} /> : <CounterData apiEndpoint="/api/dashboard/counts" />}
                     </div>
                 </div>
@@ -49,10 +49,7 @@ export default function Dashboard({ users, counts }: DashboardProps) {
                     <UserStatusLog users={users} />
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min"></div>
-                {/* Additional Content Section */}
-                {/* <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    {/* Konten tambahan bisa dimasukkan di sini */}
-                {/* </div> */} */
+
             </div>
         </AppLayout>
     );

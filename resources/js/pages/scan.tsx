@@ -2,11 +2,12 @@ import Header from '@/components/Auth/HeaderAuth';
 import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, FolderInput, RotateCcw } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Camera, FolderInput, RotateCcw, MessageCircle } from 'lucide-react';
+import { use, useEffect, useRef, useState } from 'react';
+import GrowingLoader from '@/components/GrowingLoader';
 
-// Create animated button component
 const AnimatedButton = motion(Button);
+
 
 export default function ScanPenyakit() {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -110,10 +111,27 @@ export default function ScanPenyakit() {
         openCamera();
     };
 
-    useEffect(() => {
-        openCamera();
-        return () => closeCamera();
-    }, []);
+
+  useEffect(() => {
+      // Fungsi yang sudah ada
+      openCamera();
+
+      // Fungsi loading
+      const timer = setTimeout(() => {
+          setIsLoading(false); // Setelah 3 detik, loading selesai
+      }, 3000);
+
+      // Cleanup
+      return () => {
+          clearTimeout(timer); // Bersihkan timer loading
+          closeCamera(); // Bersihkan kamera
+      };
+  }, []);
+
+  if (isLoading) return <GrowingLoader />;
+
+
+
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
@@ -261,7 +279,6 @@ export default function ScanPenyakit() {
                         )}
                     </AnimatePresence>
 
-                    {/* Tips and Tricks */}
                     <motion.div
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -307,6 +324,23 @@ export default function ScanPenyakit() {
                         )}
                     </motion.div>
                 </div>
+
+                <motion.div
+                    className="fixed right-6 bottom-6 z-50"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <AnimatedButton
+                        className="flex items-center gap-2 rounded-full bg-green-600 px-6 py-4 text-base font-semibold text-white shadow-lg hover:bg-green-700"
+                        whileHover={{ scale: 1.05, boxShadow: '0 10px 20px rgba(34, 197, 94, 0.3)' }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => router.get('/chatbot')}
+                    >
+                        <MessageCircle className="h-6 w-6 text-white" />
+                        <span>Pergi ke Chat Bot</span>
+                    </AnimatedButton>
+                </motion.div>
 
                 <canvas ref={canvasRef} className="hidden"></canvas>
             </main>

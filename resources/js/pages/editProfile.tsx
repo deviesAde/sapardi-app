@@ -7,10 +7,12 @@ import { motion } from 'framer-motion';
 import { Lock, Mail, MoveLeft, Settings, Shield, User } from 'lucide-react';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import GrowingLoader from '@/components/GrowingLoader';
+import { useEffect } from 'react';
 
 export default function PengaturanAkun({ auth }: { auth: { user: { name: string; email: string } } }) {
     const { name, email } = auth.user;
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleLogOut = async () => {
         const result = await Swal.fire({
@@ -51,6 +53,15 @@ export default function PengaturanAkun({ auth }: { auth: { user: { name: string;
             },
         },
     };
+
+     useEffect(() => {
+            const timer = setTimeout(() => {
+                setIsLoading(false);
+            }, 6000);
+            return () => clearTimeout(timer);
+        }, []);
+
+    if (isLoading) return <GrowingLoader />;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-gray-100">

@@ -17,11 +17,11 @@ const Welcome = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 6000);
+        }, 3000);
         return () => clearTimeout(timer);
     }, []);
 
-   
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {

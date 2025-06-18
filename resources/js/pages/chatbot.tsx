@@ -2,8 +2,9 @@ import { Button } from '@/components/ui/button';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
-import { MoveLeft } from 'lucide-react';
+import { Menu, MoveLeft, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { History } from 'lucide-react';
 
 type ChatMessage = {
     role: 'user' | 'bot';
@@ -24,6 +25,18 @@ const Chatbot: React.FC = () => {
     const [sessionId, setSessionId] = useState<number | null>(null);
     const [messagesRef] = useAutoAnimate<HTMLDivElement>();
     const [historyRef] = useAutoAnimate<HTMLDivElement>();
+    const [showHistory, setShowHistory] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Check if mobile on mount and resize
+    useEffect(() => {
+        const checkIfMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkIfMobile();
+        window.addEventListener('resize', checkIfMobile);
+        return () => window.removeEventListener('resize', checkIfMobile);
+    }, []);
 
     // Load all chat history on mount
     useEffect(() => {
@@ -86,6 +99,7 @@ const Chatbot: React.FC = () => {
         } finally {
             setPrompt('');
             setLoading(false);
+            if (isMobile) setShowHistory(false);
         }
     };
 
@@ -96,6 +110,7 @@ const Chatbot: React.FC = () => {
             setMessages([]);
             setPrompt('');
             fetchHistory();
+            if (isMobile) setShowHistory(false);
         } catch (err) {
             console.error('Gagal membuat sesi baru:', err);
         }
@@ -104,6 +119,7 @@ const Chatbot: React.FC = () => {
     const handleSelectHistory = (chat: ChatSession) => {
         setSessionId(chat.id);
         setMessages(chat.messages);
+        if (isMobile) setShowHistory(false);
     };
 
     const handleClearHistory = async () => {
@@ -113,9 +129,29 @@ const Chatbot: React.FC = () => {
         setMessages([]);
     };
 
+    const toggleHistory = () => {
+        setShowHistory(!showHistory);
+    };
+
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="flex h-screen bg-[#67AE6E]">
-            <div className="m-6 flex flex-1 flex-col rounded-2xl bg-white p-6">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative flex h-screen bg-[#67AE6E]">
+            {/* Mobile History Toggle Button */}
+            {isMobile && (
+                <motion.button
+                    onClick={toggleHistory}
+                    className="fixed top-4 left-4 z-50 rounded-full bg-white p-2 shadow-md md:hidden"
+                    animate={{ opacity: showHistory ? 0 : 1 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    <Menu size={24}
+                        className="text-black" />
+                </motion.button>
+            )}
+
+            {/* Main Chat Area */}
+            <div
+                className={`m-6 flex flex-1 flex-col rounded-2xl bg-white p-6 transition-all duration-300 ${isMobile && showHistory ? 'opacity-50' : 'opacity-100'}`}
+            >
                 <div className="mb-4 flex items-center justify-between">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600" onClick={() => (window.location.href = '/')}>
@@ -201,48 +237,116 @@ const Chatbot: React.FC = () => {
                 </motion.div>
             </div>
 
-            {/* Sidebar */}
-            <motion.div
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="m-6 w-72 rounded-2xl bg-white p-4"
-            >
-                <h2 className="mb-4 text-2xl font-bold text-green-900">History Chat</h2>
-                <div ref={historyRef} className="space-y-3">
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleNewChat}
-                        className="w-full rounded-xl bg-green-500 py-2 text-white hover:bg-green-600"
-                    >
-                        New Chat
-                    </motion.button>
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleClearHistory}
-                        className="w-full rounded-xl bg-red-500 py-2 text-white hover:bg-red-600"
-                    >
-                        Clear History
-                    </motion.button>
-                    <AnimatePresence>
-                        {chatHistory.map((chat) => (
-                            <motion.div
-                                key={chat.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, x: -50 }}
-                                whileHover={{ scale: 1.02, backgroundColor: '#f0f0f0' }}
-                                onClick={() => handleSelectHistory(chat)}
-                                className="cursor-pointer rounded-xl bg-gray-100 p-3 text-black hover:bg-gray-200"
-                            >
-                                {chat.prompt}
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </div>
-            </motion.div>
+            {/* Sidebar - Desktop */}
+            {!isMobile && (
+                <motion.div
+                    initial={{ x: 50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="m-6 w-72 rounded-2xl bg-white p-4"
+                >
+                    <h2 className="mb-4 text-2xl font-bold text-green-900">History Chat</h2>
+                    <div ref={historyRef} className="space-y-3">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleNewChat}
+                            className="w-full rounded-xl bg-green-500 py-2 text-white hover:bg-green-600"
+                        >
+                            New Chat
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleClearHistory}
+                            className="w-full rounded-xl bg-red-500 py-2 text-white hover:bg-red-600"
+                        >
+                            Clear History
+                        </motion.button>
+                        <AnimatePresence>
+                            {chatHistory.map((chat) => (
+                                <motion.div
+                                    key={chat.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, x: -50 }}
+                                    whileHover={{ scale: 1.02, backgroundColor: '#f0f0f0' }}
+                                    onClick={() => handleSelectHistory(chat)}
+                                    className="cursor-pointer rounded-xl bg-gray-100 p-3 text-black hover:bg-gray-200"
+                                >
+                                    {chat.prompt}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Mobile History Panel */}
+            <AnimatePresence>
+                {isMobile && showHistory && (
+                    <>
+                        {/* Overlay */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.5 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="fixed inset-0 z-40 bg-black"
+                            onClick={toggleHistory}
+                        />
+
+                        {/* History Panel */}
+                        <motion.div
+                            initial={{ x: -300 }}
+                            animate={{ x: 0 }}
+                            exit={{ x: -300 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            className="fixed top-0 left-0 z-50 h-full w-3/4 max-w-sm rounded-r-2xl bg-white p-4 shadow-xl"
+                        >
+                            <div className="mb-4 flex items-center justify-between">
+                                <h2 className="text-2xl font-bold text-green-900">History Chat</h2>
+                                <button onClick={toggleHistory} className="p-2">
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            <div ref={historyRef} className="h-[calc(100%-100px)] space-y-3 overflow-y-auto">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={handleNewChat}
+                                    className="w-full rounded-xl bg-green-500 py-2 text-white hover:bg-green-600"
+                                >
+                                    New Chat
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={handleClearHistory}
+                                    className="w-full rounded-xl bg-red-500 py-2 text-white hover:bg-red-600"
+                                >
+                                    Clear History
+                                </motion.button>
+                                <AnimatePresence>
+                                    {chatHistory.map((chat) => (
+                                        <motion.div
+                                            key={chat.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, x: -50 }}
+                                            whileHover={{ scale: 1.02, backgroundColor: '#f0f0f0' }}
+                                            onClick={() => handleSelectHistory(chat)}
+                                            className="cursor-pointer rounded-xl bg-gray-100 p-3 text-black hover:bg-gray-200"
+                                        >
+                                            {chat.prompt}
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };

@@ -57,7 +57,7 @@ export default function PengaturanAkun({ auth }: { auth: { user: { name: string;
      useEffect(() => {
             const timer = setTimeout(() => {
                 setIsLoading(false);
-            }, 6000);
+            }, 1000); // Simulate loading delay
             return () => clearTimeout(timer);
         }, []);
 

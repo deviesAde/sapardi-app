@@ -34,7 +34,7 @@ export function HeaderAuth() {
     // Effect untuk memantau scroll
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 10) {
+            if (window.scrollY > 100) {
                 setIsScrolled(true);
             } else {
                 setIsScrolled(false); // Jika di atas, beri warna pada header

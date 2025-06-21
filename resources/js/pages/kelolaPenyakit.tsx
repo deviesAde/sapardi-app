@@ -151,17 +151,21 @@ export default function KelolaPenyakit() {
 
                 {/* Penyakit List */}
                 <div className="overflow-hidden rounded-lg bg-neutral-900 shadow">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-neutral-700">
+                    <div className="w-full">
+                        <table className="w-full divide-y divide-neutral-700">
                             <thead className="bg-neutral-800">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">Nama Penyakit</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">Deskripsi</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">Penyebab</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">
+                                    <th className="w-1/5 px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">
+                                        Nama Penyakit
+                                    </th>
+                                    <th className="w-2/5 px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">
+                                        Deskripsi
+                                    </th>
+                                    <th className="w-1/5 px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">Penyebab</th>
+                                    <th className="w-1/5 px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-300 uppercase">
                                         Saran Penanganan
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-300 uppercase">Aksi</th>
+                                    <th className="w-1/5 px-3 py-3 text-center text-xs font-medium tracking-wider text-gray-300 uppercase">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-700 bg-neutral-900">
@@ -169,45 +173,44 @@ export default function KelolaPenyakit() {
                                     <>
                                         {/* Baris Utama */}
                                         <tr key={item.id} className="hover:bg-neutral-800">
-                                            <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-100">{item.nama_penyakit}</td>
-                                            <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-400">
-                                                {expandedRow === item.id
-                                                    ? item.deskripsi
-                                                    : `${item.deskripsi.slice(0, 50)}...`}{' '}
-                                                {/* Tampilkan ringkasan jika tidak diperluas */}
+                                            <td className="px-3 py-4 text-sm font-medium break-words text-gray-100">{item.nama_penyakit}</td>
+                                            <td className="px-3 py-4 text-sm break-words text-gray-400">
+                                                {expandedRow === item.id ? item.deskripsi : `${item.deskripsi.slice(0, 80)}...`}
                                             </td>
-                                            <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-400">
-                                                {item.penyebab.length > 30 ? `${item.penyebab.slice(0, 50)}...` : item.penyebab}
+                                            <td className="px-3 py-4 text-sm break-words text-gray-400">
+                                                {item.penyebab.length > 60 ? `${item.penyebab.slice(0, 60)}...` : item.penyebab}
                                             </td>
-                                            <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-400">
-                                                {item.saran_penanganan.length > 30
-                                                    ? `${item.saran_penanganan.slice(0, 50)}...`
+                                            <td className="px-3 py-4 text-sm break-words text-gray-400">
+                                                {item.saran_penanganan.length > 60
+                                                    ? `${item.saran_penanganan.slice(0, 60)}...`
                                                     : item.saran_penanganan}
                                             </td>
-                                            <td className="space-x-2 px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
-                                                <button
-                                                    onClick={() => handleEdit(item)}
-                                                    className="rounded-md px-3 py-1 text-sm text-white"
-                                                    style={{ backgroundColor: '#123524' }}
-                                                >
-                                                    <Pencil className="mr-2 inline h-4 w-4" />
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(item.id)}
-                                                    className="rounded-md bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
-                                                >
-                                                    <Trash2 className="mr-2 inline h-4 w-4" />
-                                                    Hapus
-                                                </button>
-                                                <button
-                                                    onClick={() => toggleDetail(item.id)}
-                                                    className={`rounded-md bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700 ${
-                                                        expandedRow === item.id ? 'bg-gray-700' : ''
-                                                    }`}
-                                                >
-                                                    {expandedRow === item.id ? 'Tutup' : 'Detail'}
-                                                </button>
+                                            <td className="px-3 py-4 text-center">
+                                                <div className="flex flex-col justify-center gap-1 sm:flex-row">
+                                                    <button
+                                                        onClick={() => handleEdit(item)}
+                                                        className="rounded-md px-2 py-1 text-xs whitespace-nowrap text-white"
+                                                        style={{ backgroundColor: '#123524' }}
+                                                    >
+                                                        <Pencil className="mr-1 inline h-3 w-3" />
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(item.id)}
+                                                        className="rounded-md bg-red-600 px-2 py-1 text-xs whitespace-nowrap text-white hover:bg-red-700"
+                                                    >
+                                                        <Trash2 className="mr-1 inline h-3 w-3" />
+                                                        Hapus
+                                                    </button>
+                                                    <button
+                                                        onClick={() => toggleDetail(item.id)}
+                                                        className={`rounded-md bg-blue-600 px-2 py-1 text-xs whitespace-nowrap text-white hover:bg-blue-700 ${
+                                                            expandedRow === item.id ? 'bg-gray-700' : ''
+                                                        }`}
+                                                    >
+                                                        {expandedRow === item.id ? 'Tutup' : 'Detail'}
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
 
@@ -215,18 +218,18 @@ export default function KelolaPenyakit() {
                                         {expandedRow === item.id && (
                                             <tr>
                                                 <td colSpan={5} className="bg-neutral-800 px-6 py-4 text-gray-300">
-                                                    <div className="space-y-2">
+                                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                                         <div>
-                                                            <h3 className="text-sm font-medium">Deskripsi:</h3>
-                                                            <p className="text-sm">{item.deskripsi}</p>
+                                                            <h3 className="mb-2 text-sm font-medium text-gray-200">Deskripsi:</h3>
+                                                            <p className="text-sm text-gray-300">{item.deskripsi}</p>
                                                         </div>
                                                         <div>
-                                                            <h3 className="text-sm font-medium">Penyebab:</h3>
-                                                            <p className="text-sm">{item.penyebab}</p>
+                                                            <h3 className="mb-2 text-sm font-medium text-gray-200">Penyebab:</h3>
+                                                            <p className="text-sm text-gray-300">{item.penyebab}</p>
                                                         </div>
                                                         <div>
-                                                            <h3 className="text-sm font-medium">Saran Penanganan:</h3>
-                                                            <p className="text-sm">{item.saran_penanganan}</p>
+                                                            <h3 className="mb-2 text-sm font-medium text-gray-200">Saran Penanganan:</h3>
+                                                            <p className="text-sm text-gray-300">{item.saran_penanganan}</p>
                                                         </div>
                                                     </div>
                                                 </td>
